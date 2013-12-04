@@ -1,0 +1,359 @@
+//Line following Robot Using Arduino
+//Copyright by Claudia Khansa' Atikah Hidayat,June 2013
+
+#include 
+#include 
+LiquidCrystal_I2C lcd(63,16,2);  // set the LCD address to 0x27 for a 16 chars and 2 line display
+// constants won't change. They're used here to
+// set pin numbers:
+const int buttonPin = 3;    // the number of the pushbutton pin
+const int ledPin =  13;   
+int adc[8], menu = 1;
+const int arahmotorkiri1=9;
+const int pwmmotorkiri=3;
+const int arahmotorkiri2=10;
+const int arahmotorkanan1=11;
+const int arahmotorkanan2=12;
+const int pwmmotorkanan=5;
+//int readADC[4];
+  const int batas = 200;
+  int error;
+  int count=0;
+  int digitalsensor[4];
+  int Kanan;
+  int Kiri;
+  int Sensor_total;
+// variables will change:
+int buttonState2 = 0; 
+int buttonState4 = 0; 
+int buttonState7 = 0;
+int buttonState8 = 0;// variable for reading the pushbutton status
+int sensor0;
+int sensor1;
+int sensor2;
+int sensor3;
+void setup() {
+  lcd.init(); 
+  lcd.backlight();
+  Serial.begin(9600);
+  pinMode(arahmotorkiri1,OUTPUT);
+  pinMode(arahmotorkiri2,OUTPUT);
+  pinMode(pwmmotorkiri,OUTPUT);
+  pinMode(arahmotorkanan1,OUTPUT);
+  pinMode(arahmotorkanan2,OUTPUT);
+  pinMode(pwmmotorkanan,OUTPUT);
+  analogWrite(pwmmotorkiri,0);
+  digitalWrite(arahmotorkiri1,HIGH);
+  digitalWrite(arahmotorkiri2,HIGH);
+  analogWrite(pwmmotorkanan,0);
+  digitalWrite(arahmotorkanan1,HIGH);
+  digitalWrite(arahmotorkanan2,HIGH);
+
+  //LCD Greeting
+
+  lcd.print("Good Morning!!!");
+  delay(700);
+  lcd.clear();
+  lcd.print("   BEWARE!!!!");
+  lcd.setCursor(0,1);
+  lcd.print("    We are...");
+  delay(700);
+  lcd.clear();
+  lcd.print("BRAINIAC MONSTER");
+  lcd.setCursor(0,1);
+  lcd.print("LineFollowerRobo");
+  delay(700);
+;
+  lcd.clear();
+  lcd.print("  Here we go!!");
+  delay(1000);
+  lcd.clear();
+
+
+  pinMode(ledPin, OUTPUT);
+  // initialize the pushbutton pin as an input:
+  pinMode(2, INPUT);
+  pinMode(4, INPUT); 
+  pinMode(7, INPUT);
+  pinMode(8, INPUT);
+}
+void tampildigital()
+{
+int i;
+for(i = 0; i<4 br="" i="">  {
+  lcd.setCursor(i,1);
+  lcd.print(digitalsensor[i]);
+  }
+}
+void tampiladc()
+{
+
+  lcd.clear();
+  int sensor0 = analogRead(A0);
+  lcd.setCursor(7,0);
+  lcd.print(sensor0);
+  //delay(10);
+  int sensor1 = analogRead(A1);
+  lcd.setCursor(11,0);
+  lcd.print(sensor1);
+  //delay(10);
+  int sensor2 = analogRead(A2);
+  lcd.setCursor(0,1);
+  lcd.print(sensor2);
+  //delay(10);
+  int sensor3 = analogRead(A3);
+  lcd.setCursor(4,1);
+  lcd.print(sensor3);
+  delay(10); 
+}
+void mainmenu()
+{
+
+  buttonState2 = digitalRead(2);
+  buttonState4 = digitalRead(4);
+  buttonState7 = digitalRead(7);
+  buttonState8 = digitalRead(8);
+
+lcd.print("Choose Mode:");
+if(menu == 1)
+    {
+    lcd.setCursor(0,1);
+    lcd.print("Read ADC");
+   if (buttonState2 == 0)
+        {
+        while(1)
+            {
+            lcd.clear();
+            tampiladc();
+            if (buttonState4 == 0) break;
+            }
+        }
+    }
+else if (menu == 2)
+    {
+    lcd.setCursor(0,1);
+    lcd.print("Set Batas&Speed");
+    if (buttonState2 == 0)
+        {
+        while(1)
+            {
+            lcd.clear();
+           // threshold();
+          //  read();
+          // kecepatan() ;
+            delay(100);
+            if (buttonState4 == 0) break;
+            }
+      
+        }
+    }
+else if (menu == 3)
+    {
+    lcd.setCursor(0,1);
+    lcd.print("Line Following !");
+    if (buttonState2 == 0)
+        {
+        while(1)
+            {
+            lcd.clear();
+            lcd.print("  BRAINIAC MONSTER   ");
+            lcd.setCursor(0,1);
+            lcd.print("    GO!!!");
+            delay(100);
+            lcd.clear();
+            if (buttonState2 == 0)
+                {
+                while(1)
+                    {
+                     sensor0=analogRead(A0); 
+                     sensor1=analogRead(A1);
+                     sensor2=analogRead(A2);
+                     sensor3=analogRead(A3); 
+                     linefollowing();
+                    if (buttonState4 == 0)
+                        {
+                   //     motor(0,0);
+                        break;
+                        }
+                    
+                    }
+                }
+            if (buttonState4 == 0) break;
+            }
+        }
+    }
+if (buttonState7 == 0) menu++;
+if (buttonState8 == 0) menu--;
+if (menu > 3) menu = 3;
+if (menu < 1) menu = 1;
+delay(100);
+ if (buttonState4 == LOW){
+ (menu == 1);
+ }
+lcd.clear();
+}
+void loop(){
+  mainmenu();
+}
+void maju()
+{
+  analogWrite(pwmmotorkiri,255);
+  digitalWrite(arahmotorkiri1,LOW);
+  digitalWrite(arahmotorkiri2,HIGH);
+  analogWrite(pwmmotorkanan,255);
+  digitalWrite(arahmotorkanan1,LOW);
+  digitalWrite(arahmotorkanan2,HIGH);
+  lcd.setCursor(0,0);
+  lcd.print("MAJU");
+}
+void berhenti()
+{
+  analogWrite(pwmmotorkiri,0);
+  digitalWrite(arahmotorkiri1,LOW);
+  digitalWrite(arahmotorkiri2,LOW);
+  analogWrite(pwmmotorkanan,0);
+  digitalWrite(arahmotorkanan1,HIGH);
+  digitalWrite(arahmotorkanan2,HIGH);
+  lcd.setCursor(0,0);
+  lcd.print("BERHENTI");
+}
+void mundur()
+  {
+  analogWrite(pwmmotorkiri,255);
+  digitalWrite(arahmotorkiri1,HIGH);
+  digitalWrite(arahmotorkiri2,LOW);
+  analogWrite(pwmmotorkanan,255);
+  digitalWrite(arahmotorkanan1,HIGH);
+  digitalWrite(arahmotorkanan2,LOW);
+  lcd.setCursor(0,0);
+  lcd.print("MUNDUR");
+  }
+void belokkiri(){
+  analogWrite(pwmmotorkiri,255);
+  digitalWrite(arahmotorkiri1,HIGH);
+  digitalWrite(arahmotorkiri2,LOW);
+  analogWrite(pwmmotorkanan,255);
+  digitalWrite(arahmotorkanan1,LOW);
+  digitalWrite(arahmotorkanan2,HIGH);
+  lcd.setCursor(0,0);
+  lcd.print("KIRI");
+}
+void belokkanan(){ 
+  analogWrite(pwmmotorkiri,255);
+  digitalWrite(arahmotorkiri1,LOW);
+  digitalWrite(arahmotorkiri2,HIGH);
+  analogWrite(pwmmotorkanan,255);
+  digitalWrite(arahmotorkanan1,HIGH);
+  digitalWrite(arahmotorkanan2,LOW);
+  lcd.setCursor(0,0);
+  lcd.print("KANAN");
+}
+void linefollowing()
+{
+
+  int Sensor_total;
+
+  if(sensor0     digitalsensor[0]=0;
+  }
+  else {digitalsensor[0]=1;}
+
+  if(sensor1     digitalsensor[1]=0;
+  }
+  else {digitalsensor[1]=1;}
+
+  if(sensor2     digitalsensor[2]=0;
+  }
+  else {digitalsensor[2]=1;}
+
+  if(sensor3     digitalsensor[3]=0;
+  }
+  else {digitalsensor[3]=1;}
+
+/*  if(sensor4     count++;
+  }
+  if(sensor5     count++;
+  }
+  if(sensor6     count++;
+  }
+  if(sensor7     count++;
+  }*/
+  Sensor_total = digitalsensor[0] + digitalsensor[1]+digitalsensor[2]+digitalsensor[3];
+  Kanan = digitalsensor[0] + digitalsensor[1];
+  Kiri = digitalsensor[3] + digitalsensor[2];
+  if(Sensor_total == 0){ //kosong
+    //error=3;
+    //maju();
+    //delay(500);
+    berhenti();
+  }
+//  else if(count=4){ //dpt semua
+//    error=3;
+//    maju();
+//    delay(500);
+//    belokkanan();
+//  }
+//  else if(count>=3){ //dpt sebagian besar
+//    if(sensor2 //      error=3;
+//      maju();
+//      delay(500);
+//      belokkanan();
+//    }
+//    else if(sensor0 //      error=3;
+//      maju();
+//      delay(500);
+//      belokkiri();
+//    }
+//  }
+// 
+///*  if(sensor1-sensor2 <= 100 || sensor2-sensor1 <= 100 ){
+//    maju();
+//  }
+//  else if(sensor1-sensor2<=500 || sensor1-sensor2 > 100){
+//    error=1;
+//    belokkiri();
+//  }
+//  else */if(sensor0+sensor1-sensor2-sensor3>=1000){
+//    error=2;
+//    belokkiri();
+//  }
+//  else if(sensor0+sensor1-sensor2-sensor3<=100){
+//    maju();
+//  }
+//  else if(sensor0+sensor1-sensor2-sensor3<=00){
+//    maju();
+//  }
+///*  else if(sensor0 //    error=3;
+//    belokkiri();
+//  }*/
+//  else if(sensor2-sensor1>=300){
+//    error=1;
+//    belokkanan();
+//  }
+//  else if(sensor3+sensor2-sensor1-sensor0>=1000){
+//    error=2;
+//    belokkanan();
+//  }
+///*  else if(sensor6 //    error=3;
+//    belokkanan();
+//  }
+//  else if(sensor2 //    error=1;
+//    belokkiri(); //jika A
+//  }*/
+// 
+//  count = 0;
+if(Kanan > Kiri)
+{
+belokkanan();
+tampildigital();
+}
+else if(Kanan < Kiri)
+{
+belokkiri();
+tampildigital();
+}
+else if(Kanan == Kiri)
+{
+  maju();
+  tampildigital();
+}
+}
